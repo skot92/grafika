@@ -437,7 +437,7 @@ void drawSphere(VECTOR3 color, MATRIX4 T)
 {
 	GLdouble c = 8;
 	GLdouble a = 1;
-	int i, j, id = 0;
+	int i, j;
 	VECTOR4 ph, pt;
 	VECTOR3 pih;
 
@@ -470,8 +470,6 @@ void drawGrid(VECTOR3 color, MATRIX4 T) {
 	glColor3f(color.x, color.y, color.z);
 	glLineWidth(2.0f);
 
-	GLdouble c = 8;
-	GLdouble a = 1;
 	int i, j, id = 0;
 	VECTOR4 ph, pt;
 	VECTOR3 pih;
@@ -551,17 +549,13 @@ void keyPressed(GLFWwindow * windows, GLint key, GLint scanCode, GLint action, G
 
 		case GLFW_KEY_W:
 			alphaFel += PI / 5;
-			//eye.x = R * cos(alpha);
-			//eye.z = R * sin(alpha);
 			eye.y = alphaFel;
 			initViewMatrix(view, eye, centerVec, up);
 			initTransformations();
 			break;
 		case GLFW_KEY_S:
 			alphaFel -= PI / 5;
-			//eye.x = R * cos(alpha);
-			//eye.z = R * sin(alpha);
-			eye.y = alphaFel; //;R*sin(alphaFel);
+			eye.y = alphaFel;
 			initViewMatrix(view, eye, centerVec, up);
 			initTransformations();
 			break;

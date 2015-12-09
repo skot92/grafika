@@ -307,7 +307,7 @@ GLdouble forog = 0.0f;
 #define PIdb 10
 //hany pont van pow(PIdb+1)
 #define  size 121
-VECTOR4 identityCube[size];
+VECTOR4 identityTorus[size];
 
 void initIdentityCube() {
 	GLdouble c = 8;
@@ -316,7 +316,7 @@ void initIdentityCube() {
 	int db = 0;
 	for (int i = 0; i < PIdb+1; i++) {
 		for (int j = 0; j < PIdb+1; j++) {
-			identityCube[db] = initVector4((c + a * cos(j* PI2)) * cos(PI2 * i),
+			identityTorus[db] = initVector4((c + a * cos(j* PI2)) * cos(PI2 * i),
 				a * sin(PI2 * j), (c + a * cos(PI2 * j)) * sin(PI2 * i), 1.0);
 			++db;
 		}
@@ -346,7 +346,7 @@ GLdouble cX = (winWidth - winHeight) / 2.0f, cY = 0.0f, cW = winHeight, cH = win
 * elõállítja a szükséges mátrixokat
 */
 
-VECTOR4 transformedCube[size];
+VECTOR4 transformedTorus[size];
 void initTransformations()
 {
 	MATRIX4 tmp1,tmp2,rx;
@@ -360,7 +360,7 @@ void initTransformations()
 	mulMatrices(view, rx, tmp1);
 	// a kameratranszformáció által kapott pozíciót megõrizzük a döntésekhez
 	for (int i = 0; i < size; i++) {
-		transformedCube[i] = mulMatrixVector(tmp1, identityCube[i]);
+		transformedTorus[i] = mulMatrixVector(tmp1, identityTorus[i]);
 	}
 	mulMatrices(Vc, tmp1, tmp2);
 	mulMatrices(wtv, tmp2, TcTorusX);
@@ -397,30 +397,21 @@ void init()
 	initTransformations();
 }
 
-VECTOR3 sulypont(FACE* face) {
-	GLdouble sum = 0,sum1 = 0,sum2 = 0;
+GLdouble sulypont(FACE* face) {
+	GLdouble sum = 0;
 	VECTOR3 asd = initVector3(0, 0, 0);
 	for (int i = 0; i < 4; i++)
 	{
-		sum += transformedCube[face->v[i]].x / 4 ;
-		sum1 += transformedCube[face->v[i]].y / 4;
-		sum2 += transformedCube[face->v[i]].z / 4;
-
+		sum += transformedTorus[face->v[i]].z;
 	}
 
-	asd.x = sum;
-	asd.y = sum1;
-	asd.z = sum2;
-
-	asd = initVector3(asd.x, asd.y, asd.z);
-
-	return asd;
+	return sum / 4;
 }
 
 int comparePointsZ(const void *a, const void *b) {
 	double az,bz;
-	az = sulypont((FACE*)a).z;
-	bz = sulypont((FACE*)b).z;
+	az = sulypont((FACE*)a);
+	bz = sulypont((FACE*)b);
 
 	if ( az < bz) return -1;
 	if (az == bz) return  0;
@@ -444,15 +435,15 @@ void drawSphere(VECTOR3 color, MATRIX4 T)
 	{
 		VECTOR3 edges[2] =
 		{
-			vecSub(convertToInhomogen(transformedCube[faces[i].v[0]]),
-			convertToInhomogen(transformedCube[faces[i].v[1]])),
-			vecSub(convertToInhomogen(transformedCube[faces[i].v[0]]),
-				convertToInhomogen(transformedCube[faces[i].v[2]])),
+			vecSub(convertToInhomogen(transformedTorus[faces[i].v[0]]),
+			convertToInhomogen(transformedTorus[faces[i].v[1]])),
+			vecSub(convertToInhomogen(transformedTorus[faces[i].v[0]]),
+				convertToInhomogen(transformedTorus[faces[i].v[2]])),
 		};
 
 		// kiszámítjuk ezekbõl a a lap normálvektorát
 		VECTOR3 normal = normalize(crossProduct(edges[0], edges[1]));
-		VECTOR3 toCamera = normalize(vecSub(convertToInhomogen(transformedCube[faces[i].v[0]]), initVector3(0.0f, 0.0f, center)));
+		VECTOR3 toCamera = normalize(vecSub(convertToInhomogen(transformedTorus[faces[i].v[0]]), initVector3(0.0f, 0.0f, center)));
 
 		if (dotProduct(normal, toCamera) > 0) {
 			tmp[db] = faces[i];
@@ -470,7 +461,7 @@ void drawSphere(VECTOR3 color, MATRIX4 T)
 		glBegin(GL_POLYGON);
 		glColor3f(0, 0, 0);
 		for (int j = 0; j < 4; j++) {
-			ph = initVector4(identityCube[tmp[i].v[j]].x, identityCube[tmp[i].v[j]].y, identityCube[tmp[i].v[j]].z, 1.0f);
+			ph = initVector4(identityTorus[tmp[i].v[j]].x, identityTorus[tmp[i].v[j]].y, identityTorus[tmp[i].v[j]].z, 1.0f);
 
 			pt = mulMatrixVector(T, ph);
 
@@ -483,7 +474,7 @@ void drawSphere(VECTOR3 color, MATRIX4 T)
 		glBegin(GL_LINE_LOOP);
 		glColor3f(0, 1, 0);
 		for (int j = 0; j < 4; j++) {
-			ph = initVector4(identityCube[tmp[i].v[j]].x, identityCube[tmp[i].v[j]].y, identityCube[tmp[i].v[j]].z, 1.0f);
+			ph = initVector4(identityTorus[tmp[i].v[j]].x, identityTorus[tmp[i].v[j]].y, identityTorus[tmp[i].v[j]].z, 1.0f);
 
 			pt = mulMatrixVector(T, ph);
 
@@ -519,11 +510,6 @@ void draw()
 	glFlush();
 }
 
-/*
-front.x = cPos.x + glm::cos(cOrientation.y) * glm::cos(cOrientation.x);
-front.y = cPos.y + glm::sin(cOrientation.x);
-front.z = cPos.z + glm::sin(cOrientation.y) * glm::cos(cOrientation.x);
-*/
 
 void keyPressed(GLFWwindow * windows, GLint key, GLint scanCode, GLint action, GLint mods) {
 	if (action == GLFW_PRESS || GLFW_REPEAT) {
@@ -546,17 +532,13 @@ void keyPressed(GLFWwindow * windows, GLint key, GLint scanCode, GLint action, G
 
 		case GLFW_KEY_W:
 			alphaFel += PI / 5;
-			//eye.x = R * cos(alpha);
-			//eye.z = R * sin(alpha);
-			eye.y = alphaFel;//  R*sin(alphaFel);
+			eye.y = alphaFel;
 			initViewMatrix(view, eye, centerVec, up);
 			initTransformations();
 			break;
 		case GLFW_KEY_S:
 			alphaFel -= PI / 5;
-			//eye.x = R * cos(alpha);
-			//eye.z = R * sin(alpha);
-			eye.y = alphaFel;//R*sin(alphaFel);
+			eye.y = alphaFel;
 			initViewMatrix(view, eye, centerVec, up);
 			initTransformations();
 			break;
