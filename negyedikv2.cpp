@@ -300,7 +300,7 @@ MATRIX4 TcTorusX;
 */
 MATRIX4 Tmp;
 
-GLdouble alpha = 0.0f, alphaFel = 0.0f, deltaAlpha = PI / 80.0f;
+GLdouble alpha = PI / 2, alphaFel = 0.0f, deltaAlpha = PI / 80.0f;
 GLdouble forog = 0.0f;
 
 //mennyivel kell bejarni
@@ -337,7 +337,7 @@ void initFaces() {
 /**
 * centrális vetítés középpontjának Z koordinátája
 */
-GLdouble center = 6.0f;
+GLdouble center = 15.0f;
 /**
 * nézet koordinátái
 */
@@ -358,15 +358,15 @@ void initTransformations()
 	initRotationMatrixX(rx,forog);
 
 	mulMatrices(view, rx, tmp1);
+	mulMatrices(Vc, tmp1, tmp2);
+	mulMatrices(wtv, tmp2, TcTorusX);
+
 	// a kameratranszformáció által kapott pozíciót megõrizzük a döntésekhez
 	for (int i = 0; i < size; i++) {
 		transformedTorus[i] = mulMatrixVector(tmp1, identityTorus[i]);
 	}
-	mulMatrices(Vc, tmp1, tmp2);
-	mulMatrices(wtv, tmp2, TcTorusX);
 
-	initIdentityCube();
-	initFaces();
+
 }
 
 
@@ -383,18 +383,18 @@ void init()
 	glLoadIdentity();
 	glOrtho(0.0f, winWidth, 0.0f, winHeight, 0.0f, 1.0f);
 
-	eye = initVector3(0.0, 0.0, R); //megadja a kamera pozícióját (Ez legyen most a z tengely pozitív felén)
-	
-	eye.x = R*cos(alpha);
-	eye.z = R*sin(alpha);
-	eye.y = R*sin(alphaFel);
+	initIdentityCube();
+	initFaces();
 
+	eye = initVector3(R*cos(alpha), alphaFel, R*sin(alpha)); //megadja a kamera pozícióját (Ez legyen most a z tengely pozitív felén)
 	centerVec = initVector3(0.0, 0.0, 0.0); //megadja, hogy merre néz a kamera (Ez legyen most az origó)
 	up = initVector3(0.0, 1.0, 0.0); //megdja, hogy merre van a felfele irány (Ez legyen most az y tengely)
 
 	initViewMatrix(view, eye, centerVec, up);
 
 	initTransformations();
+
+
 }
 
 GLdouble sulypont(FACE* face) {
@@ -441,17 +441,16 @@ void drawSphere(VECTOR3 color, MATRIX4 T)
 				convertToInhomogen(transformedTorus[faces[i].v[2]])),
 		};
 
-		// kiszámítjuk ezekbõl a a lap normálvektorát
+
 		VECTOR3 normal = normalize(crossProduct(edges[0], edges[1]));
 		VECTOR3 toCamera = normalize(vecSub(convertToInhomogen(transformedTorus[faces[i].v[0]]), initVector3(0.0f, 0.0f, center)));
-
+		
 		if (dotProduct(normal, toCamera) > 0) {
 			tmp[db] = faces[i];
 			++db;
 		}
 	}
 
-	//itt jönne a festõalgoritmus
 	qsort(tmp, db, sizeof(FACE), comparePointsZ);
 
 	for (i = 0; i < db; i++)
@@ -498,11 +497,10 @@ void draw()
 
 	double now = glfwGetTime();
 	if (now - lastUpdate >= updateFrequency) {
-		forog += 3.14f / 180.0f;;
+		forog += 3.14f / 760.0f;;
 		initTransformations();
 		lastUpdate = now;
 	}
-	//piros
 	drawSphere(initVector3(1.0f, 0.0f, 0.0f), TcTorusX);
 
 

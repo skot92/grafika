@@ -37,15 +37,21 @@ VECTOR2 bezierPoints[bezierPontokSzama] = { -100, -300, -200, -100, -300, -200, 
 VECTOR2 hermitePoints[hermitePontokSzama + 1] = { bezierPoints[bezierPontokSzama - 1], -500, -300, -600, -350, -400, -500 };
 
 
-//G*M eredmenye
+//G*Mvesszo eredmenye
 VECTOR2 C[4];
 
+/*
+0.000 1.000 8.000 0.000
+0.000 1.000 4.000 0.000
+0.000 1.000 2.000 1.000
+1.000 1.000 1.000 0.000
+*/
 
-MATRIX4 M = {
-	0,1,8,0,
-	0,1,4,0,
-	0,1,2,1,
-	1,1,1,0 };
+MATRIX4 Mvesszo = {
+	0.750, -1.750,  0.000,  1.000,
+	-1.000,  2.000,  0.000,  0.000,
+	0.250,-0.250 , 0.000,  0.000,
+	0.500, -1.500 , 1.000,  0.000 };
 
 GLint Round(GLfloat n) { return (GLint)(n + 0.5); }
 
@@ -131,77 +137,6 @@ void mulMatrices3x3(MATRIX3 A, MATRIX3 B, MATRIX3 C) {
 }
 
 
-float Determinant3(MATRIX4 M) {
-	return M[0][0] * M[1][1] * M[2][2] +
-		M[0][1] * M[1][2] * M[2][0] +
-		M[0][2] * M[1][0] * M[2][1] -
-		M[0][2] * M[1][1] * M[2][0] -
-		M[0][1] * M[1][0] * M[2][2] -
-		M[0][0] * M[2][1] * M[1][2];
-}
-
-
-float Determinant4(MATRIX4 M, MATRIX4 NewMatrix) {
-	MATRIX4 SmallMatrix;// = CreateMatrix(3, 3);
-	int SourceRow, SourceCol;
-	int TempRow, TempCol;
-	int NewRow = 0, NewCol = 0;
-
-	float D = 0, Determ = 0;
-
-	for (SourceRow = 0; SourceRow < 4; SourceRow++) {
-		for (SourceCol = 0; SourceCol < 4; SourceCol++) {
-			//3*3-as részmátrix átmásolása
-			for (TempRow = 0; TempRow < 3; TempRow++) {
-				for (TempCol = 0; TempCol < 3; TempCol++) {
-					if (TempRow < SourceRow)
-						NewRow = TempRow;
-					else
-						NewRow = TempRow + 1;
-
-					if (TempCol < SourceCol)
-						NewCol = TempCol;
-					else
-						NewCol = TempCol + 1;
-
-					SmallMatrix[TempRow][TempCol] = M[NewRow][NewCol];
-				}
-			}
-
-
-			//Determináns meghatározása
-			D = Determinant3(SmallMatrix);
-			//printf("%.2f\n", D);
-
-			if ((SourceRow + SourceCol) % 2 == 0)
-				NewMatrix[SourceCol][SourceRow] = D;
-			else
-				NewMatrix[SourceCol][SourceRow] = D * (-1);
-		}
-	}
-
-	for (SourceRow = 0; SourceRow < 4; SourceRow++) {
-		Determ += NewMatrix[SourceRow][0] * M[0][SourceRow];
-	}
-
-
-	return Determ;
-}
-
-void InvertMatrix(MATRIX4 M) {
-	int Row, Col;
-
-	MATRIX4 Temp;
-	float Determ = Determinant4(M, Temp);
-
-	//printf("Determ: %.2f\n\n", Determ);
-
-	for (Row = 0; Row < 4; Row++) {
-		for (Col = 0; Col < 4; Col++) {
-			M[Row][Col] = Temp[Row][Col] / Determ;
-		}
-	}
-}
 
 //A matrix a G vektorral valo osszeszorzasa, res-be kerul az eredmeny
 void arrayMulMatrix4x4(MATRIX4 A, VECTOR2 G[], VECTOR2 res[]) {
@@ -243,7 +178,6 @@ void init() {
 	glLineWidth(5.0);
 	glLineStipple(1, 0xFF00);
 
-	InvertMatrix(M);
 }
 
 
@@ -269,8 +203,8 @@ void hermite() {
 
 	glLineWidth(2.0);
 	glBegin(GL_LINE_STRIP);
-	//G * M kiszamitasa
-	arrayMulMatrix4x4(M, hermitePoints, C);
+	//G * Mvesszo kiszamitasa
+	arrayMulMatrix4x4(Mvesszo, hermitePoints, C);
 	for (GLdouble t = 0.0; t <= 2; t += 0.001) {
 		tveszzo[0] = pow(t, 3);
 		tveszzo[1] = pow(t, 2);

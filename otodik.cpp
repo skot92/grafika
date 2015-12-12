@@ -24,6 +24,13 @@ typedef struct { GLdouble x, y, z, w; } VECTOR4;
 */
 typedef GLdouble MATRIX4[4][4];
 
+/**
+* egy laphoz tartozó csúcsok indexei
+*/
+typedef struct { GLint v[4]; } FACE;
+
+typedef GLdouble MATRIX7[7][7];
+
 /*======================================*/
 
 /**
@@ -79,6 +86,51 @@ VECTOR3 crossProduct(VECTOR3 a, VECTOR3 b) {
 	return initVector3(a.y * b.z - a.z * b.y, a.z * b.x - a.x * b.z, a.x * b.y - a.y * b.x);
 }
 
+
+VECTOR3 vecSub(VECTOR3 a, VECTOR3 b) {
+	return initVector3(
+		b.x - a.x,
+		b.y - a.y,
+		b.z - a.z);
+}
+
+/**
+* visszaadja az 'a' vektor hosszát
+*/
+float length(VECTOR3 a) {
+	return sqrt(dotProduct(a, a));
+}
+
+/**
+* visszaadja az 'a' vektor normalizáltját
+*/
+VECTOR3 normalize(VECTOR3 a) {
+	float len = length(a);
+
+	return initVector3(a.x / len, a.y / len, a.z / len);
+}
+
+
+
+/**
+* visszadja a (v0,v1,v2,v3) indexekhez tartozó lapot
+*/
+FACE initFace(GLint v0, GLint v1, GLint v2, GLint v3) {
+	FACE f;
+
+	f.v[0] = v0;
+	f.v[1] = v1;
+	f.v[2] = v2;
+	f.v[3] = v3;
+
+	return f;
+}
+
+
+
+
+
+
 /**
 * feltölti az A mátrixot az egységmátrixszal
 */
@@ -92,6 +144,45 @@ void initIdentityMatrix(MATRIX4 A)
 
 	for (i = 0; i < 4; i++)
 		A[i][i] = 1.0f;
+}
+
+void initRotationMatrixX(MATRIX4 A, float alpha)
+{
+	float c = cos(alpha);
+	float s = sin(alpha);
+
+	initIdentityMatrix(A);
+
+	A[1][1] = c;
+	A[1][2] = -s;
+	A[2][1] = s;
+	A[2][2] = c;
+}
+
+void initRotationMatrixY(MATRIX4 A, float alpha)
+{
+	float c = cos(alpha);
+	float s = sin(alpha);
+
+	initIdentityMatrix(A);
+
+	A[0][0] = c;
+	A[0][2] = s;
+	A[2][0] = -s;
+	A[2][2] = c;
+}
+
+void initRotationMatrixZ(MATRIX4 A, float alpha)
+{
+	float c = cos(alpha);
+	float s = sin(alpha);
+
+	initIdentityMatrix(A);
+
+	A[0][0] = c;
+	A[0][1] = -s;
+	A[1][0] = s;
+	A[1][1] = c;
 }
 
 /**
@@ -150,58 +241,7 @@ void initViewMatrix(MATRIX4 A, VECTOR3 eye, VECTOR3 center, VECTOR3 up) {
 	A[2][3] = -dotProduct(f, eye);
 }
 
-void initRotationMatrixX(MATRIX4 A, float alpha)
-{
-	float c = cos(alpha);
-	float s = sin(alpha);
 
-	initIdentityMatrix(A);
-
-	A[1][1] = c;
-	A[1][2] = -s;
-	A[2][1] = s;
-	A[2][2] = c;
-}
-
-void initRotationMatrixY(MATRIX4 A, float alpha)
-{
-	float c = cos(alpha);
-	float s = sin(alpha);
-
-	initIdentityMatrix(A);
-
-	A[0][0] = c;
-	A[0][2] = s;
-	A[2][0] = -s;
-	A[2][2] = c;
-}
-
-void initRotationMatrixZ(MATRIX4 A, float alpha)
-{
-	float c = cos(alpha);
-	float s = sin(alpha);
-
-	initIdentityMatrix(A);
-
-	A[0][0] = c;
-	A[0][1] = -s;
-	A[1][0] = s;
-	A[1][1] = c;
-}
-
-void initEltolasMatrix(MATRIX4 A, VECTOR3 P) {
-	initIdentityMatrix(A);
-	A[0][3] = P.x;
-	A[1][3] = P.y;
-	A[2][3] = P.z;
-}
-
-void initScaleMatrix(MATRIX4 A, VECTOR3 P) {
-	initIdentityMatrix(A);
-	A[0][0] = P.x;
-	A[1][1] = P.y;
-	A[2][2] = P.z;
-}
 
 
 /**
@@ -249,69 +289,45 @@ MATRIX4 Vc;
 /**
 * Wtv mátrixok
 */
-MATRIX4 Wc;
+MATRIX4 wtv;
 
-/**
-* a fenti mátrixokból elõállított két transzformációs mátrix
-*/
-MATRIX4 TcTorusX, TcTorusY, TcTorusZ, TcGrid,TcCube1, TcCube2, TcCube3, TcCube4;
-
-/**
-* segédmátrix
-*/
-MATRIX4 Tmp;
+MATRIX4 TcTorusX,T;
 
 GLdouble alpha = 0.0f, alphaFel = 0.0f, deltaAlpha = PI / 80.0f;
 GLdouble forog = 0.0f;
-
-
-/**
-* centrális vetítés középpontjának Z koordinátája
-*/
-GLdouble center = 6.0f;
 
 /**
 * egységkocka csúcsai
 */
 VECTOR4 identityCube[8] =
 {
-
-	
-	//c5
-	initVector4(0.5, 0.5,-0.5, 1.0),
-	//c6
-	initVector4(-0.5, 0.5,-0.5, 1.0),
-	
-	//c2
-	initVector4(-0.5,-0.5,-0.5, 1.0),
-	//c1
-	initVector4(0.5,-0.5,-0.5, 1.0),
-
-	//c4
-	initVector4(0.5, 0.5, 0.5, 1.0),
-	//c7
-	initVector4(-0.5, 0.5, 0.5, 1.0),
-
-	//c3
-	initVector4(-0.5,-0.5, 0.5, 1.0),
-	//c0
-	initVector4(0.5,-0.5, 0.5, 1.0),
+	initVector4(0.5f, 0.5f,-0.5f, 1.0f),
+	initVector4(-0.5f, 0.5f,-0.5f, 1.0f),
+	initVector4(-0.5f,-0.5f,-0.5f, 1.0f),
+	initVector4(0.5f,-0.5f,-0.5f, 1.0f),
+	initVector4(0.5f, 0.5f, 0.5f, 1.0f),
+	initVector4(-0.5f, 0.5f, 0.5f, 1.0f),
+	initVector4(-0.5f,-0.5f, 0.5f, 1.0f),
+	initVector4(0.5f,-0.5f, 0.5f, 1.0f),
 };
 
 /**
 * egységkocka lapjainak indexei
 */
-GLuint faces[24] =
+FACE faces[6] =
 {
-	0,1,2,3, //alsó
-	0,1,5,4, //jobb
-	1,2,6,5, //hátsó
-	2,3,7,6, //bal
-	3,0,4,7, //elsõ
-	4,5,6,7, //felsõ
+	initFace(0, 4, 7, 3),
+	initFace(1, 5, 4, 0),
+	initFace(4, 5, 6, 7),
+	initFace(3, 2, 1, 0),
+	initFace(6, 5, 1, 2),
+	initFace(7, 6, 2, 3),
 };
 
-
+/**
+* centrális vetítés középpontjának Z koordinátája
+*/
+GLdouble center = 15.0f;
 /**
 * nézet koordinátái
 */
@@ -319,70 +335,32 @@ GLdouble cX = (winWidth - winHeight) / 2.0f, cY = 0.0f, cW = winHeight, cH = win
 /**
 * elõállítja a szükséges mátrixokat
 */
+
+VECTOR4 transformedCube[8];
+
 void initTransformations()
 {
+	MATRIX4 tmp1, tmp2, rx;
 	// vetítési mátrixok
 	initPersProjMatrix(Vc, center);
 	// Wtv mátrixok
-	initWtvMatrix(Wc, -4.0f, -4.0f, 8.0f, 8.0f, cX, cY, cW, cH);
-
-	MATRIX4 rX, rY, rZ, el, tmp1, tmp2, tmp3, tmp4,s;
-	initRotationMatrixX(rX, forog);
-	initRotationMatrixY(rY, forog );
-	initRotationMatrixZ(rZ, forog );
-	initEltolasMatrix(el, initVector3(0, 9, 0));
-
-	// centrális mátrixok
-	//torus
-	mulMatrices(el, rX, Tmp);
-	mulMatrices(view, Tmp, tmp1);
-	mulMatrices(Vc, tmp1, tmp2);
-	mulMatrices(Wc, tmp2, TcTorusX);
-
-	mulMatrices(el, rY, Tmp);
-	mulMatrices(view, Tmp, tmp1);
-	mulMatrices(Vc, tmp1, tmp2);
-	mulMatrices(Wc, tmp2, TcTorusY);
+	initWtvMatrix(wtv, -4.0f, -4.0f, 8.0f, 8.0f, cX, cY, cW, cH);
 
 
-	mulMatrices(el, rZ, Tmp);
-	mulMatrices(view, Tmp, tmp1);
-	mulMatrices(Vc, tmp1, tmp2);
-	mulMatrices(Wc, tmp2, TcTorusZ);
+	for (int i = 0; i < 8; i++) {
+		transformedCube[i] = mulMatrixVector(view, identityCube[i]);
+	}
 
-	//racs
-	mulMatrices(Vc, view, Tmp);
-	mulMatrices(Wc, Tmp, TcGrid);
+	// vetítés * kamera
+	mulMatrices(Vc, view, tmp1);
 
-	//hasab
-	initScaleMatrix(s, initVector3(5, 18, 5));
-	initEltolasMatrix(el, initVector3(9.5, 9, 9.5));
-	mulMatrices(el, s, Tmp);
-	mulMatrices(view, Tmp, tmp1);
-	mulMatrices(Vc, tmp1, tmp2);
-	mulMatrices(Wc, tmp2, TcCube1);
+	// Wtv * vetítés * kamera
+	mulMatrices(wtv, tmp1, T);
 
-	initEltolasMatrix(el, initVector3(-9.5, 9, -9.5));
-	mulMatrices(el, s, Tmp);
-	mulMatrices(view, Tmp, tmp1);
-	mulMatrices(Vc, tmp1, tmp2);
-	mulMatrices(Wc, tmp2, TcCube2);
-
-	initEltolasMatrix(el, initVector3(9.5, 9, -9.5));
-	mulMatrices(el, s, Tmp);
-	mulMatrices(view, Tmp, tmp1);
-	mulMatrices(Vc, tmp1, tmp2);
-	mulMatrices(Wc, tmp2, TcCube3);
-
-	initEltolasMatrix(el, initVector3(-9.5, 9, 9.5));
-	mulMatrices(el, s, Tmp);
-	mulMatrices(view, Tmp, tmp1);
-	mulMatrices(Vc, tmp1, tmp2);
-	mulMatrices(Wc, tmp2, TcCube4);
 
 }
 
-/*======================================*/
+
 
 VECTOR3 eye, up, centerVec;
 
@@ -403,101 +381,97 @@ void init()
 	initViewMatrix(view, eye, centerVec, up);
 
 	initTransformations();
+
+
 }
 
-
-void drawCube(VECTOR3 color, MATRIX4 T)
-{
-	int i, j, id = 0;
-	VECTOR4 ph, pt;
-	VECTOR3 pih;
-
-	glLineWidth(2.0f);
-	glColor3f(color.x, color.y, color.z);
-
-	for (i = 0;i < 6;i++)
+GLdouble sulypont(FACE* face) {
+	GLdouble sum = 0;
+	VECTOR3 asd = initVector3(0, 0, 0);
+	for (int i = 0; i < 4; i++)
 	{
-		glBegin(GL_LINE_LOOP);
-		for (j = 0;j < 4;j++)
-		{
-			ph = initVector4(identityCube[faces[id]].x, identityCube[faces[id]].y, identityCube[faces[id]].z, 1.0f);
-			pt = mulMatrixVector(T, ph);
-			pih = initVector3(pt.x / pt.w, pt.y / pt.w, pt.z / pt.w);
-
-			glVertex2f(pih.x, pih.y);
-
-			id++;
-		}
-		glEnd();
+		sum += transformedCube[face->v[i]].z;
 	}
+
+	return sum / 4;
+}
+
+int comparePointsZ(const void *a, const void *b) {
+	double az, bz;
+	az = sulypont((FACE*)a);
+	bz = sulypont((FACE*)b);
+
+	if (az < bz) return -1;
+	if (az == bz) return  0;
+
+	return  1;
 }
 
 
-void drawSphere(VECTOR3 color, MATRIX4 T)
+void drawCube(MATRIX4 T)
 {
-	GLdouble c = 8;
-	GLdouble a = 1;
-	int i, j;
-	VECTOR4 ph, pt;
-	VECTOR3 pih;
-
-	glLineWidth(2.0f);
-	glColor3f(color.x, color.y, color.z);
-
-	for (double u = 0; u <= 2 * PI + 0.001; u += PI / 6) {
-		glBegin(GL_LINE_STRIP);
-		for (double v = 0; v <= 2 * PI + 0.001; v += PI / 6) {
-			ph = initVector4((c + a * cos(v)) * cos(u), a * sin(v), (c + a * cos(v)) * sin(u), 1.0);
-			pt = mulMatrixVector(T, ph);
-			pih = initVector3(pt.x / pt.w, pt.y / pt.w, pt.z / pt.w);
-			glVertex2f(pih.x, pih.y);
-		}
-		glEnd();
-	}
-	for (double v = 0; v <= 2 * PI + 0.001; v += PI / 6) {
-		glBegin(GL_LINE_STRIP);
-		for (double u = 0; u <= 2 * PI + 0.001; u += PI / 6) {
-			ph = initVector4((c + a * cos(v)) * cos(u), a * sin(v), (c + a * cos(v)) * sin(u), 1.0);
-			pt = mulMatrixVector(T, ph);
-			pih = initVector3(pt.x / pt.w, pt.y / pt.w, pt.z / pt.w);
-			glVertex2f(pih.x, pih.y);
-		}
-		glEnd();
-	}
-}
-
-void drawGrid(VECTOR3 color, MATRIX4 T) {
-	glColor3f(color.x, color.y, color.z);
-	glLineWidth(2.0f);
-
 	int i, j, id = 0;
+
 	VECTOR4 ph, pt;
 	VECTOR3 pih;
 
-	for (double u = -12; u <= 12; u += 1) {
-		glBegin(GL_LINE_STRIP);
-		for (double v = -12; v <= 12; v += 1) {
-			ph = initVector4(v, 0, u, 1.0);
-			pt = mulMatrixVector(T, ph);
-			pih = initVector3(pt.x / pt.w, pt.y / pt.w, pt.z / pt.w);
-			glVertex2f(pih.x, pih.y);
-		}
-		glEnd();
-	}
+	// végigmegyünk a lapokon
+	for (i = 0; i < 6; i++)
+	{
+		// meghatározzuk a lap megfelelõi éleit
+		VECTOR3 edges[2] =
+		{
+			vecSub(convertToInhomogen(transformedCube[faces[i].v[0]]),
+			convertToInhomogen(transformedCube[faces[i].v[1]])),
+			vecSub(convertToInhomogen(transformedCube[faces[i].v[0]]),
+				convertToInhomogen(transformedCube[faces[i].v[2]])),
+		};
+
+		// kiszámítjuk ezekbõl a a lap normálvektorát
+		VECTOR3 normal = normalize(crossProduct(edges[0], edges[1]));
+
+		// camerába mutató vektort
+		VECTOR3 toCamera;
 
 
-	for (double v = -12; v <= 12; v += 1) {
-		glBegin(GL_LINE_STRIP);
-		for (double u = -12; u <= 12; u += 1) {
-			ph = initVector4(v, 0, u, 1.0);
-			pt = mulMatrixVector(T, ph);
-			pih = initVector3(pt.x / pt.w, pt.y / pt.w, pt.z / pt.w);
-			glVertex2f(pih.x, pih.y);
+			toCamera = normalize(vecSub(convertToInhomogen(transformedCube[faces[i].v[0]]), initVector3(0.0f, 0.0f, center)));
+
+
+		// láthatóság eldöntése skaláris szorzat alapján
+		if (dotProduct(normal, toCamera) > 0) {
+
+			glColor3f(0.5,0.5,0.5);
+			glBegin(GL_POLYGON);
+
+			for (int j = 0; j < 4; j++) {
+				ph = initVector4(identityCube[faces[i].v[j]].x, identityCube[faces[i].v[j]].y, identityCube[faces[i].v[j]].z, 1.0f);
+
+				pt = mulMatrixVector(T, ph);
+
+				pih = initVector3(pt.x / pt.w, pt.y / pt.w, pt.z / pt.w);
+
+				glVertex2f(pih.x, pih.y);
+			}
+
+			glEnd();
+
+			glColor3f(0.0, 1.0, 0.0);
+			glBegin(GL_LINE_STRIP);
+
+			for (int j = 0; j < 4; j++) {
+				ph = initVector4(identityCube[faces[i].v[j]].x, identityCube[faces[i].v[j]].y, identityCube[faces[i].v[j]].z, 1.0f);
+
+				pt = mulMatrixVector(T, ph);
+
+				pih = initVector3(pt.x / pt.w, pt.y / pt.w, pt.z / pt.w);
+
+				glVertex2f(pih.x, pih.y);
+			}
+
+			glEnd();
 		}
-		glEnd();
 	}
 }
-
 
 void draw()
 {
@@ -507,26 +481,17 @@ void draw()
 
 	double now = glfwGetTime();
 	if (now - lastUpdate >= updateFrequency) {
-		forog += 3.14f / 180.0f;;
+		forog += 3.14f / 760.0f;;
 		initTransformations();
 		lastUpdate = now;
 	}
 
-	drawGrid(initVector3(0.0f, 0.0f, 0.0f), TcGrid);
-	//piros
-	drawSphere(initVector3(1.0f, 0.0f, 0.0f), TcTorusX);
-	//zold
-	drawSphere(initVector3(0.0f, 1.0f, 0.0f), TcTorusY);
-	//kek
-	drawSphere(initVector3(0.0f, 0.0f, 1.0f), TcTorusZ);
-	drawCube(initVector3(0.0f, 0.0f, 1.0f), TcCube1);
-	drawCube(initVector3(0.0f, 0.0f, 1.0f), TcCube2);
-	drawCube(initVector3(0.0f, 0.0f, 1.0f), TcCube3);
-	drawCube(initVector3(0.0f, 0.0f, 1.0f), TcCube4);
-	
+	drawCube(T);
+
 
 	glFlush();
 }
+
 
 void keyPressed(GLFWwindow * windows, GLint key, GLint scanCode, GLint action, GLint mods) {
 	if (action == GLFW_PRESS || GLFW_REPEAT) {
