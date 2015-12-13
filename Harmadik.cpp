@@ -321,7 +321,7 @@ GLdouble cX = (winWidth - winHeight) / 2.0f, cY = 0.0f, cW = winHeight, cH = win
 */
 void initTransformations()
 {
-	// vetítési mátrixok
+
 	initPersProjMatrix(Vc, center);
 	// Wtv mátrixok
 	initWtvMatrix(Wc, -4.0f, -4.0f, 8.0f, 8.0f, cX, cY, cW, cH);
@@ -332,7 +332,7 @@ void initTransformations()
 	initRotationMatrixZ(rZ, forog );
 	initEltolasMatrix(el, initVector3(0, 9, 0));
 
-	// centrális mátrixok
+
 	//torus
 	mulMatrices(el, rX, Tmp);
 	mulMatrices(view, Tmp, tmp1);

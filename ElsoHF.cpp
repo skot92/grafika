@@ -10,15 +10,15 @@ using namespace std;
 
 #define PI 3.141592653589793
 
-#define körökSzama 15
+#define körökSzama 18
 
-GLdouble updateFrequency = 0.007, lastUpdate;
+GLdouble updateFrequency = 0.009, lastUpdate;
 
 GLsizei winWidth = 800.f, winHeight = 600.f;
 
 GLdouble sugar = 20.0;
 
-typedef struct kor2d { GLdouble x, y, vX, vY, tomeg, r, pont; } KOR2D; //x,y koordináta, vX, vY sebességvektor, tomeg a kor tomege
+typedef struct kor2d { GLdouble x, y, vX, vY, tomeg, r, pont; } KOR2D;
 
 typedef struct point2d { GLdouble x, y; } POINT2D;
 
@@ -50,7 +50,7 @@ KOR2D circles[körökSzama] = {
 	initKor2D(600,500) ,	initKor2D(50,100), initKor2D(450,350), initKor2D(400,300) , initKor2D(50,200) , initKor2D(200,200)
 	, initKor2D(200,50) , initKor2D(50,300) , initKor2D(300,300)
 	, initKor2D(300,50) , initKor2D(50,400) , initKor2D(400,400)
-	, initKor2D(400,50) , initKor2D(50,500) , initKor2D(500,500) };
+	, initKor2D(400,50) , initKor2D(50,500) , initKor2D(500,500) ,initKor2D(100,500),initKor2D(300,500),400,500 };
 
 
 void teglalepegyenese()
@@ -107,10 +107,9 @@ void init()
 	//beállítjuk a kezdõ sebességvektort, illetve a kezdotomeget
 	GLdouble kezdoTomeg = 20;
 	for (int i = 0; i < körökSzama; i++) {
-		//double range = (1.0 - 0.1);
-		//double div = RAND_MAX / range; //(double)rand() / RAND_MAX; 
-		circles[i].vX = fRand(-2, 2); //  0.1 + (rand() / div); // -2 + div * (2 - -2); 
-		circles[i].vY = fRand(-2, 2);  //0.1 + (rand() / div); // -2 + div * (2 - -2); 
+
+		circles[i].vX = fRand(-2, 2);
+		circles[i].vY = fRand(-2, 2); 
 		circles[i].tomeg = kezdoTomeg;
 		circles[i].r = sugar;
 		circles[i].pont = 0;
@@ -137,7 +136,7 @@ GLdouble ketPontTavolsaga(KOR2D P1, KOR2D P2) {
 
 
 //körök kirajzolasa
-void kor() {
+void korRajz() {
 
 	//1. jatekos
 	glBegin(GL_LINE_LOOP);
@@ -312,16 +311,16 @@ void pattanasEgymastol(KOR2D km, KOR2D ka, int i, int j) {
 
 	//vn
 	POINT2D m2 = initPoint2D(0.0, 0.0);
-	m2.x = (r - 1) * m1Vesszo.x / (r + 1) ;
-	m2.y = (r - 1) * m1Vesszo.y / (r + 1) ;
+	m2.x = (r - 1) * m1Vesszo.x / (r + 1) + u1.x;
+	m2.y = (r - 1) * m1Vesszo.y / (r + 1) + u1.y;
 
 	//wn
 	POINT2D a2 = initPoint2D(0.0, 0.0);
-	a2.x = (m1Vesszo.x * 2 * r) / (r + 1);
+	a2.x = (m1Vesszo.x * 2 * r) / (r + 1) ;
 	a2.y = (m1Vesszo.y * 2 * r) / (r + 1);
 
-	circles[i].vX = u1.x + m2.x +ka.vX;
-	circles[i].vY = u1.y + m2.y +ka.vY;
+	circles[i].vX = m2.x +ka.vX;
+	circles[i].vY = m2.y +ka.vY;
 	circles[j].vX = a2.x +ka.vX;
 	circles[j].vY = a2.y +ka.vY;
 }
@@ -329,7 +328,7 @@ void pattanasEgymastol(KOR2D km, KOR2D ka, int i, int j) {
 void kellEEgymastolPattanni() {
 	for (int i = 0; i < körökSzama; i++)
 	{
-		//azt vizsgaljuk hogy a kovetkezo rajzoloasnal hol lenne a kor
+		//azt vizsgaljuk hogy a kovetkezo rajzoloasnal hol lenne a korRajz
 		KOR2D kor1 = initKor2D(0, 0);
 		kor1 = circles[i];
 		kor1.x += kor1.vX;
@@ -360,6 +359,8 @@ void display()
 		{
 			circles[i].x += circles[i].vX;
 			circles[i].y += circles[i].vY;
+			//if(circles[i].vX > 2 || circles[i].vY > 2)
+			//std::cout<< circles[i].vX << "	" << circles[i].vY<< std::endl;
 		}
 		kellePattanniAfalaktol();
 		kellEEgymastolPattanni();
@@ -369,7 +370,7 @@ void display()
 	glClear(GL_COLOR_BUFFER_BIT);
 	glColor3f(0.0, 0.4, 0.2);
 	if (now != 10.0)
-		kor();
+		korRajz();
 
 	glFlush();
 }
