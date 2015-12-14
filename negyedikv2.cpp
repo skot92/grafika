@@ -5,7 +5,7 @@
 
 #define PI 3.141592653589793
 
-GLdouble updateFrequency = 0.01, lastUpdate;
+GLdouble updateFrequency = 0.005, lastUpdate;
 
 /*======================================*/
 
@@ -29,7 +29,6 @@ typedef GLdouble MATRIX4[4][4];
 */
 typedef struct { GLint v[4]; } FACE;
 
-typedef GLdouble MATRIX7[7][7];
 
 /*======================================*/
 
@@ -46,9 +45,6 @@ VECTOR3 initVector3(GLdouble x, GLdouble y, GLdouble z) {
 	return P;
 }
 
-/**
-* visszadja az (x,y,z,w) vektort
-*/
 VECTOR4 initVector4(GLdouble x, GLdouble y, GLdouble z, GLdouble w) {
 	VECTOR4 P;
 
@@ -97,7 +93,7 @@ VECTOR3 vecSub(VECTOR3 a, VECTOR3 b) {
 /**
 * visszaadja az 'a' vektor hosszát
 */
-float length(VECTOR3 a) {
+GLdouble length(VECTOR3 a) {
 	return sqrt(dotProduct(a, a));
 }
 
@@ -105,7 +101,7 @@ float length(VECTOR3 a) {
 * visszaadja az 'a' vektor normalizáltját
 */
 VECTOR3 normalize(VECTOR3 a) {
-	float len = length(a);
+	GLdouble len = length(a);
 
 	return initVector3(a.x / len, a.y / len, a.z / len);
 }
@@ -146,10 +142,10 @@ void initIdentityMatrix(MATRIX4 A)
 		A[i][i] = 1.0f;
 }
 
-void initRotationMatrixX(MATRIX4 A, float alpha)
+void initRotationMatrixX(MATRIX4 A, GLdouble alpha)
 {
-	float c = cos(alpha);
-	float s = sin(alpha);
+	GLdouble c = cos(alpha);
+	GLdouble s = sin(alpha);
 
 	initIdentityMatrix(A);
 
@@ -159,10 +155,10 @@ void initRotationMatrixX(MATRIX4 A, float alpha)
 	A[2][2] = c;
 }
 
-void initRotationMatrixY(MATRIX4 A, float alpha)
+void initRotationMatrixY(MATRIX4 A, GLdouble alpha)
 {
-	float c = cos(alpha);
-	float s = sin(alpha);
+	GLdouble c = cos(alpha);
+	GLdouble s = sin(alpha);
 
 	initIdentityMatrix(A);
 
@@ -172,10 +168,10 @@ void initRotationMatrixY(MATRIX4 A, float alpha)
 	A[2][2] = c;
 }
 
-void initRotationMatrixZ(MATRIX4 A, float alpha)
+void initRotationMatrixZ(MATRIX4 A, GLdouble alpha)
 {
-	float c = cos(alpha);
-	float s = sin(alpha);
+	GLdouble c = cos(alpha);
+	GLdouble s = sin(alpha);
 
 	initIdentityMatrix(A);
 
@@ -309,7 +305,7 @@ GLdouble forog = 0.0f;
 #define  size 121
 VECTOR4 identityTorus[size];
 
-void initIdentityCube() {
+void initIdentityTorus() {
 	GLdouble c = 8;
 	GLdouble a = 5;
 	GLdouble PI2 = PI * 2 / PIdb;
@@ -383,7 +379,7 @@ void init()
 	glLoadIdentity();
 	glOrtho(0.0f, winWidth, 0.0f, winHeight, 0.0f, 1.0f);
 
-	initIdentityCube();
+	initIdentityTorus();
 	initFaces();
 
 	eye = initVector3(R*cos(alpha), alphaFel, R*sin(alpha)); //megadja a kamera pozícióját (Ez legyen most a z tengely pozitív felén)
@@ -424,9 +420,7 @@ int comparePointsZ(const void *a, const void *b) {
 
 void drawSphere(VECTOR3 color, MATRIX4 T)
 {
-	GLdouble c = 8;
-	GLdouble a = 3;
-	int i, j, id = 0;
+	int i, id = 0;
 	VECTOR4 ph, pt;
 	VECTOR3 pih;	
 
@@ -461,6 +455,19 @@ void drawSphere(VECTOR3 color, MATRIX4 T)
 
 
 		glBegin(GL_POLYGON);
+		glColor3f(0.5, 0.5, 0.5);
+		for (int j = 0; j < 4; j++) {
+			ph = initVector4(identityTorus[tmp[i].v[j]].x, identityTorus[tmp[i].v[j]].y, identityTorus[tmp[i].v[j]].z, 1.0f);
+
+			pt = mulMatrixVector(T, ph);
+
+			pih = initVector3(pt.x / pt.w, pt.y / pt.w, pt.z / pt.w);
+
+			glVertex2d(pih.x, pih.y);
+		}
+		glEnd();
+
+		glBegin(GL_LINE_LOOP);
 		glColor3f(0, 0, 0);
 		for (int j = 0; j < 4; j++) {
 			ph = initVector4(identityTorus[tmp[i].v[j]].x, identityTorus[tmp[i].v[j]].y, identityTorus[tmp[i].v[j]].z, 1.0f);
@@ -469,20 +476,7 @@ void drawSphere(VECTOR3 color, MATRIX4 T)
 
 			pih = initVector3(pt.x / pt.w, pt.y / pt.w, pt.z / pt.w);
 
-			glVertex2f(pih.x, pih.y);
-		}
-		glEnd();
-
-		glBegin(GL_LINE_LOOP);
-		glColor3f(0, 1, 0);
-		for (int j = 0; j < 4; j++) {
-			ph = initVector4(identityTorus[tmp[i].v[j]].x, identityTorus[tmp[i].v[j]].y, identityTorus[tmp[i].v[j]].z, 1.0f);
-
-			pt = mulMatrixVector(T, ph);
-
-			pih = initVector3(pt.x / pt.w, pt.y / pt.w, pt.z / pt.w);
-
-			glVertex2f(pih.x, pih.y);
+			glVertex2d(pih.x, pih.y);
 		}
 		glEnd();
 

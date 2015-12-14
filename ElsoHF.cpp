@@ -12,7 +12,7 @@ using namespace std;
 
 #define körökSzama 18
 
-GLdouble updateFrequency = 0.009, lastUpdate;
+GLdouble updateFrequency = 0.015, lastUpdate;
 
 GLsizei winWidth = 800.f, winHeight = 600.f;
 
@@ -297,10 +297,9 @@ void pattanasEgymastol(KOR2D km, KOR2D ka, int i, int j) {
 	m1.x = km.vX - ka.vX;
 	m1.y = km.vY - ka.vY;
 
-	//un // ez lesz a vetulet
+	//un
 	POINT2D m1Vesszo = initPoint2D(0.0, 0.0);
 	//m1Vesszo = componentVector(m1, w);
-	//talan ez lenne a normalizalas (w.x * w.x + w.y * w.y)  
 	m1Vesszo.x = (m1.x * w.x + m1.y * w.y) / (w.x * w.x + w.y * w.y) * w.x;
 	m1Vesszo.y = (m1.x * w.x + m1.y * w.y) / (w.x * w.x + w.y * w.y) * w.y;
 

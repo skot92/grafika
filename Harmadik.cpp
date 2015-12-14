@@ -150,10 +150,10 @@ void initViewMatrix(MATRIX4 A, VECTOR3 eye, VECTOR3 center, VECTOR3 up) {
 	A[2][3] = -dotProduct(f, eye);
 }
 
-void initRotationMatrixX(MATRIX4 A, float alpha)
+void initRotationMatrixX(MATRIX4 A, GLdouble alpha)
 {
-	float c = cos(alpha);
-	float s = sin(alpha);
+	GLdouble c = cos(alpha);
+	GLdouble s = sin(alpha);
 
 	initIdentityMatrix(A);
 
@@ -163,10 +163,10 @@ void initRotationMatrixX(MATRIX4 A, float alpha)
 	A[2][2] = c;
 }
 
-void initRotationMatrixY(MATRIX4 A, float alpha)
+void initRotationMatrixY(MATRIX4 A, GLdouble alpha)
 {
-	float c = cos(alpha);
-	float s = sin(alpha);
+	GLdouble c = cos(alpha);
+	GLdouble s = sin(alpha);
 
 	initIdentityMatrix(A);
 
@@ -176,10 +176,10 @@ void initRotationMatrixY(MATRIX4 A, float alpha)
 	A[2][2] = c;
 }
 
-void initRotationMatrixZ(MATRIX4 A, float alpha)
+void initRotationMatrixZ(MATRIX4 A, GLdouble alpha)
 {
-	float c = cos(alpha);
-	float s = sin(alpha);
+	GLdouble c = cos(alpha);
+	GLdouble s = sin(alpha);
 
 	initIdentityMatrix(A);
 
@@ -256,10 +256,7 @@ MATRIX4 Wc;
 */
 MATRIX4 TcTorusX, TcTorusY, TcTorusZ, TcGrid,TcCube1, TcCube2, TcCube3, TcCube4;
 
-/**
-* segédmátrix
-*/
-MATRIX4 Tmp;
+
 
 GLdouble alpha = 0.0f, alphaFel = 0.0f, deltaAlpha = PI / 80.0f;
 GLdouble forog = 0.0f;
@@ -326,7 +323,7 @@ void initTransformations()
 	// Wtv mátrixok
 	initWtvMatrix(Wc, -4.0f, -4.0f, 8.0f, 8.0f, cX, cY, cW, cH);
 
-	MATRIX4 rX, rY, rZ, el, tmp1, tmp2, tmp3, tmp4,s;
+	MATRIX4 rX, rY, rZ, el,Tmp, tmp1, tmp2,s;
 	initRotationMatrixX(rX, forog);
 	initRotationMatrixY(rY, forog );
 	initRotationMatrixZ(rZ, forog );
@@ -413,7 +410,7 @@ void drawCube(VECTOR3 color, MATRIX4 T)
 	VECTOR3 pih;
 
 	glLineWidth(2.0f);
-	glColor3f(color.x, color.y, color.z);
+	glColor3d(color.x, color.y, color.z);
 
 	for (i = 0;i < 6;i++)
 	{
@@ -424,7 +421,7 @@ void drawCube(VECTOR3 color, MATRIX4 T)
 			pt = mulMatrixVector(T, ph);
 			pih = initVector3(pt.x / pt.w, pt.y / pt.w, pt.z / pt.w);
 
-			glVertex2f(pih.x, pih.y);
+			glVertex2d(pih.x, pih.y);
 
 			id++;
 		}
@@ -437,12 +434,11 @@ void drawSphere(VECTOR3 color, MATRIX4 T)
 {
 	GLdouble c = 8;
 	GLdouble a = 1;
-	int i, j;
 	VECTOR4 ph, pt;
 	VECTOR3 pih;
 
 	glLineWidth(2.0f);
-	glColor3f(color.x, color.y, color.z);
+	glColor3d(color.x, color.y, color.z);
 
 	for (double u = 0; u <= 2 * PI + 0.001; u += PI / 6) {
 		glBegin(GL_LINE_STRIP);
@@ -450,7 +446,7 @@ void drawSphere(VECTOR3 color, MATRIX4 T)
 			ph = initVector4((c + a * cos(v)) * cos(u), a * sin(v), (c + a * cos(v)) * sin(u), 1.0);
 			pt = mulMatrixVector(T, ph);
 			pih = initVector3(pt.x / pt.w, pt.y / pt.w, pt.z / pt.w);
-			glVertex2f(pih.x, pih.y);
+			glVertex2d(pih.x, pih.y);
 		}
 		glEnd();
 	}
@@ -460,17 +456,17 @@ void drawSphere(VECTOR3 color, MATRIX4 T)
 			ph = initVector4((c + a * cos(v)) * cos(u), a * sin(v), (c + a * cos(v)) * sin(u), 1.0);
 			pt = mulMatrixVector(T, ph);
 			pih = initVector3(pt.x / pt.w, pt.y / pt.w, pt.z / pt.w);
-			glVertex2f(pih.x, pih.y);
+			glVertex2d(pih.x, pih.y);
 		}
 		glEnd();
 	}
 }
 
 void drawGrid(VECTOR3 color, MATRIX4 T) {
-	glColor3f(color.x, color.y, color.z);
+	glColor3d(color.x, color.y, color.z);
 	glLineWidth(2.0f);
 
-	int i, j, id = 0;
+	int  id = 0;
 	VECTOR4 ph, pt;
 	VECTOR3 pih;
 
@@ -480,7 +476,7 @@ void drawGrid(VECTOR3 color, MATRIX4 T) {
 			ph = initVector4(v, 0, u, 1.0);
 			pt = mulMatrixVector(T, ph);
 			pih = initVector3(pt.x / pt.w, pt.y / pt.w, pt.z / pt.w);
-			glVertex2f(pih.x, pih.y);
+			glVertex2d(pih.x, pih.y);
 		}
 		glEnd();
 	}
@@ -492,7 +488,7 @@ void drawGrid(VECTOR3 color, MATRIX4 T) {
 			ph = initVector4(v, 0, u, 1.0);
 			pt = mulMatrixVector(T, ph);
 			pih = initVector3(pt.x / pt.w, pt.y / pt.w, pt.z / pt.w);
-			glVertex2f(pih.x, pih.y);
+			glVertex2d(pih.x, pih.y);
 		}
 		glEnd();
 	}
