@@ -18,7 +18,7 @@ typedef GLdouble MATRIX4[4][4];
 typedef GLdouble MATRIX3[3][3];
 
 //kell-e forgatni
-GLint forgasVan = 0;
+bool forgasVan = false;
 
 //hany pont van lerakva az indulasnal
 GLint pontokszama = 0;
@@ -53,21 +53,21 @@ MATRIX4 Mvesszo = {
 	0.250,-0.250 , 0.000,  0.000,
 	0.500, -1.500 , 1.000,  0.000 };
 
-GLint Round(GLfloat n) { return (GLint)(n + 0.5); }
+GLint Round(GLdouble n) { return (GLint)(n + 0.5); }
 
 bool movePoint = false;
 GLint selectedPointIndex = -1;
 GLint selectedPointIndex2 = -2;
 
 
-VECTOR2 initPoint2D(GLfloat x, GLfloat y) {
+VECTOR2 initPoint2D(GLdouble x, GLdouble y) {
 	VECTOR2 P;
 	P.x = x;
 	P.y = y;
 	return P;
 }
 
-VECTOR3 initVector3(GLfloat x, GLfloat y, GLfloat z) {
+VECTOR3 initVector3(GLdouble x, GLdouble y, GLdouble z) {
 	VECTOR3 P;
 	P.x = x;
 	P.y = y;
@@ -79,9 +79,9 @@ VECTOR3 initVector3(GLfloat x, GLfloat y, GLfloat z) {
 /*
 *  Ket pont tavolsaganak negyzetet adja vissza.
 */
-GLfloat dist2(VECTOR2 P1, VECTOR2 P2) {
-	GLfloat t1 = P1.x - P2.x;
-	GLfloat t2 = P1.y - P2.y;
+GLdouble dist2(VECTOR2 P1, VECTOR2 P2) {
+	GLdouble t1 = P1.x - P2.x;
+	GLdouble t2 = P1.y - P2.y;
 	return t1 * t1 + t2 * t2;
 }
 
@@ -101,9 +101,9 @@ void initIdentityMatrix(MATRIX3 A)
 }
 
 //forgatas matrixa alpha szoggel
-void initForgatasMatrix(MATRIX3 A, float alpha) {
-	float c = cos(alpha);
-	float s = sin(alpha);
+void initForgatasMatrix(MATRIX3 A, GLdouble alpha) {
+	GLdouble c = cos(alpha);
+	GLdouble s = sin(alpha);
 
 	initIdentityMatrix(A);
 
@@ -126,7 +126,7 @@ void initEltolasMatrix(MATRIX3 A, VECTOR2 P) {
 void mulMatrices3x3(MATRIX3 A, MATRIX3 B, MATRIX3 C) {
 	int i, j, k;
 
-	float sum;
+	GLdouble sum;
 	for (i = 0; i < 3; i++)
 		for (j = 0; j < 3; j++) {
 			sum = 0;
@@ -215,7 +215,7 @@ void hermite() {
 		draw.x = C[0].x * tveszzo[0] + C[1].x * tveszzo[1] + C[2].x * tveszzo[2] + C[3].x * tveszzo[3];
 		draw.y = C[0].y * tveszzo[0] + C[1].y * tveszzo[1] + C[2].y * tveszzo[2] + C[3].y * tveszzo[3];
 		glColor3f(0.0, 0.0, 1.0);
-		glVertex2f(draw.x, draw.y);
+		glVertex2d(draw.x, draw.y);
 
 	}
 	glEnd();
@@ -234,11 +234,8 @@ VECTOR2 forgatas(VECTOR2 centralPoint, VECTOR2 otherPoint) {
 	tmp.x = -centralPoint.x;
 	tmp.y = -centralPoint.y;
 
-	//eltolas matrix
 	initEltolasMatrix(elTolasOrigoba, tmp);
-	//forgatas matrix
 	initForgatasMatrix(forgatas, 0.01);
-	//visszatolas matrix
 	initEltolasMatrix(visszatolas, centralPoint);
 
 	mulMatrices3x3(forgatas, elTolasOrigoba, elXforgatas);
@@ -273,19 +270,19 @@ void display() {
 		glPointSize(5.0);
 		glBegin(GL_POINTS);
 		for (int i = 0; i < bezierPontokSzama; i++)
-			glVertex2f(bezierPoints[i].x, bezierPoints[i].y);
+			glVertex2d(bezierPoints[i].x, bezierPoints[i].y);
 		glEnd();
 
 		glBegin(GL_POINTS);
 		for (int i = 0; i < hermitePontokSzama; i++)
-			glVertex2f(hermitePoints[i].x, hermitePoints[i].y);
+			glVertex2d(hermitePoints[i].x, hermitePoints[i].y);
 		glEnd();
 	}
 	else {
 		double now = glfwGetTime();
 		if (now - lastUpdate >= updateFrequency) {
 			//kell-e forogni
-			if (forgasVan == 1) {
+			if (forgasVan == true) {
 				//hermite iv 2. pont kurok forog
 				if (forogXPontKorul == 5)
 					forgatasIndul(hermitePoints[1]);
@@ -306,14 +303,14 @@ void display() {
 		glPointSize(5.0);
 		glBegin(GL_POINTS);
 		for (i = 0; i < bezierPontokSzama; i++)
-			glVertex2f(bezierPoints[i].x, bezierPoints[i].y);
+			glVertex2d(bezierPoints[i].x, bezierPoints[i].y);
 		glEnd();
 
 		glLineWidth(1.0);
 		glColor3f(0.0, 0.0, 0.0);
 		glBegin(GL_LINE_STRIP);
 		for (i = 0; i < bezierPontokSzama; i++)
-			glVertex2f(bezierPoints[i].x, bezierPoints[i].y);
+			glVertex2d(bezierPoints[i].x, bezierPoints[i].y);
 		glEnd();
 
 		//bezier gorbe
@@ -323,7 +320,7 @@ void display() {
 			glColor3f(0.0, 1.0, 0.0);
 			glPointSize(1.0);
 			VECTOR2 tmp = getCasteljauPoint(bezierPontokSzama - 1, 0, t);
-			glVertex2f(tmp.x, tmp.y);
+			glVertex2d(tmp.x, tmp.y);
 
 		}
 		glEnd();
@@ -334,18 +331,18 @@ void display() {
 		glPointSize(5.0);
 		glBegin(GL_POINTS);
 		for (i = 0; i < hermitePontokSzama; i++)
-			glVertex2f(hermitePoints[i].x, hermitePoints[i].y);
+			glVertex2d(hermitePoints[i].x, hermitePoints[i].y);
 		glEnd();
 
 		glColor3f(1.0, 0.0, 1.0);
 		glBegin(GL_POINTS);
-		glVertex2f(hermitePoints[hermitePontokSzama].x, hermitePoints[hermitePontokSzama].y);
+		glVertex2d(hermitePoints[hermitePontokSzama].x, hermitePoints[hermitePontokSzama].y);
 		glEnd();
 
 		glLineWidth(1.0);
 		glBegin(GL_LINE_STRIP);
-		glVertex2f(hermitePoints[0].x, hermitePoints[0].y);
-		glVertex2f(hermitePoints[hermitePontokSzama].x, hermitePoints[hermitePontokSzama].y);
+		glVertex2d(hermitePoints[0].x, hermitePoints[0].y);
+		glVertex2d(hermitePoints[hermitePontokSzama].x, hermitePoints[hermitePontokSzama].y);
 		glEnd();
 
 		hermite();
@@ -513,12 +510,12 @@ void mouseButton(GLFWwindow* window, GLint button, GLint action, GLint mods) {
 
 //melyik pontnak is kell forognia
 void melyikPontforogjon(GLint index) {
-	if (forgasVan == 0) {
-		forgasVan = 1;
+	if (forgasVan == false) {
+		forgasVan = true;
 		forogXPontKorul = index;
 	}
 	else {
-		forgasVan = 0;
+		forgasVan = false;
 	}
 }
 

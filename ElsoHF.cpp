@@ -12,11 +12,13 @@ using namespace std;
 
 #define körökSzama 18
 
+#define sugar 20.0
+
 GLdouble updateFrequency = 0.015, lastUpdate;
 
 GLsizei winWidth = 800.f, winHeight = 600.f;
 
-GLdouble sugar = 20.0;
+
 
 typedef struct kor2d { GLdouble x, y, vX, vY, tomeg, r, pont; } KOR2D;
 
