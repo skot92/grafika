@@ -249,7 +249,7 @@ MATRIX4 Vc;
 /**
 * Wtv mátrixok
 */
-MATRIX4 Wc;
+MATRIX4 Wtv;
 
 /**
 * a fenti mátrixokból elõállított két transzformációs mátrix
@@ -258,7 +258,7 @@ MATRIX4 TcTorusX, TcTorusY, TcTorusZ, TcGrid,TcCube1, TcCube2, TcCube3, TcCube4;
 
 
 
-GLdouble alpha = 0.0f, alphaFel = 0.0f, deltaAlpha = PI / 80.0f;
+GLdouble alpha = PI / 2, alphaFel = 0.0f, deltaAlpha = PI / 80.0f;
 GLdouble forog = 0.0f;
 
 
@@ -321,7 +321,7 @@ void initTransformations()
 
 	initPersProjMatrix(Vc, center);
 	// Wtv mátrixok
-	initWtvMatrix(Wc, -4.0f, -4.0f, 8.0f, 8.0f, cX, cY, cW, cH);
+	initWtvMatrix(Wtv, -4.0f, -4.0f, 8.0f, 8.0f, cX, cY, cW, cH);
 
 	MATRIX4 rX, rY, rZ, el,Tmp, tmp1, tmp2,s;
 	initRotationMatrixX(rX, forog);
@@ -334,22 +334,22 @@ void initTransformations()
 	mulMatrices(el, rX, Tmp);
 	mulMatrices(view, Tmp, tmp1);
 	mulMatrices(Vc, tmp1, tmp2);
-	mulMatrices(Wc, tmp2, TcTorusX);
+	mulMatrices(Wtv, tmp2, TcTorusX);
 
 	mulMatrices(el, rY, Tmp);
 	mulMatrices(view, Tmp, tmp1);
 	mulMatrices(Vc, tmp1, tmp2);
-	mulMatrices(Wc, tmp2, TcTorusY);
+	mulMatrices(Wtv, tmp2, TcTorusY);
 
 
 	mulMatrices(el, rZ, Tmp);
 	mulMatrices(view, Tmp, tmp1);
 	mulMatrices(Vc, tmp1, tmp2);
-	mulMatrices(Wc, tmp2, TcTorusZ);
+	mulMatrices(Wtv, tmp2, TcTorusZ);
 
 	//racs
 	mulMatrices(Vc, view, Tmp);
-	mulMatrices(Wc, Tmp, TcGrid);
+	mulMatrices(Wtv, Tmp, TcGrid);
 
 	//hasab
 	initScaleMatrix(s, initVector3(5, 18, 5));
@@ -357,25 +357,25 @@ void initTransformations()
 	mulMatrices(el, s, Tmp);
 	mulMatrices(view, Tmp, tmp1);
 	mulMatrices(Vc, tmp1, tmp2);
-	mulMatrices(Wc, tmp2, TcCube1);
+	mulMatrices(Wtv, tmp2, TcCube1);
 
 	initEltolasMatrix(el, initVector3(-9.5, 9, -9.5));
 	mulMatrices(el, s, Tmp);
 	mulMatrices(view, Tmp, tmp1);
 	mulMatrices(Vc, tmp1, tmp2);
-	mulMatrices(Wc, tmp2, TcCube2);
+	mulMatrices(Wtv, tmp2, TcCube2);
 
 	initEltolasMatrix(el, initVector3(9.5, 9, -9.5));
 	mulMatrices(el, s, Tmp);
 	mulMatrices(view, Tmp, tmp1);
 	mulMatrices(Vc, tmp1, tmp2);
-	mulMatrices(Wc, tmp2, TcCube3);
+	mulMatrices(Wtv, tmp2, TcCube3);
 
 	initEltolasMatrix(el, initVector3(-9.5, 9, 9.5));
 	mulMatrices(el, s, Tmp);
 	mulMatrices(view, Tmp, tmp1);
 	mulMatrices(Vc, tmp1, tmp2);
-	mulMatrices(Wc, tmp2, TcCube4);
+	mulMatrices(Wtv, tmp2, TcCube4);
 
 }
 

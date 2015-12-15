@@ -287,14 +287,7 @@ MATRIX4 Vc;
 */
 MATRIX4 wtv;
 
-/**
-* a fenti mátrixokból elõállított két transzformációs mátrix
-*/
 MATRIX4 TcTorusX;
-/**
-* segédmátrix
-*/
-MATRIX4 Tmp;
 
 GLdouble alpha = PI / 2, alphaFel = 0.0f, deltaAlpha = PI / 80.0f;
 GLdouble forog = 0.0f;

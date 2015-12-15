@@ -31,10 +31,10 @@ GLsizei winWidth = 800, winHeight = 600;
 #define bezierPontokSzama 5
 #define hermitePontokSzama 3
 
-VECTOR2 bezierPoints[bezierPontokSzama] = { -100, -300, -200, -100, -300, -200, -400, -100, -400, -400 };
+VECTOR2 bezierPoints[bezierPontokSzama];
 
 //ez lesz a G, utolsó pont az érintõ , +1, põedig az erinto miatt kell
-VECTOR2 hermitePoints[hermitePontokSzama + 1] = { bezierPoints[bezierPontokSzama - 1], -500, -300, -600, -350, -400, -500 };
+VECTOR2 hermitePoints[hermitePontokSzama + 1];
 
 
 //G*Mvesszo eredmenye
@@ -100,7 +100,6 @@ void initIdentityMatrix(MATRIX3 A)
 		A[i][i] = 1.0f;
 }
 
-//forgatas matrixa alpha szoggel
 void initForgatasMatrix(MATRIX3 A, GLdouble alpha) {
 	GLdouble c = cos(alpha);
 	GLdouble s = sin(alpha);
@@ -243,11 +242,8 @@ VECTOR2 forgatas(VECTOR2 centralPoint, VECTOR2 otherPoint) {
 
 	VECTOR3 ph, pt;
 	vector2 pih;
-	//homogen alak
 	ph = initVector3(otherPoint.x, otherPoint.y, 1);
-	//pont es matrix osszeszorzasa
 	pt = mulMatrixVector3x3(vegso, ph);
-	//vissza inhomogen alakba
 	pih = initPoint2D(pt.x / pt.z, pt.y / pt.z);
 	return pih;
 }
@@ -386,8 +382,8 @@ void lastHermitePoint()
 	GLdouble dx, dy;
 	dx = bezierPoints[bezierPontokSzama - 1].x - bezierPoints[bezierPontokSzama - 2].x;
 	dy = bezierPoints[bezierPontokSzama - 1].y - bezierPoints[bezierPontokSzama - 2].y;
-	hermitePoints[3].x = bezierPoints[bezierPontokSzama - 1].x + 4 * dx;  //ratio * dx;
-	hermitePoints[3].y = bezierPoints[bezierPontokSzama - 1].y + 4 * dy;  //ratio * dy;
+	hermitePoints[3].x = bezierPoints[bezierPontokSzama - 1].x + 4 * dx;  
+	hermitePoints[3].y = bezierPoints[bezierPontokSzama - 1].y + 4 * dy;
 }
 
 
@@ -398,8 +394,8 @@ void penultBezierPoint()
 	GLdouble dx, dy;
 	dx = hermitePoints[3].x - hermitePoints[0].x;
 	dy = hermitePoints[3].y - hermitePoints[0].y;
-	bezierPoints[bezierPontokSzama - 2].x = hermitePoints[0].x - 1 * dx / 4; // ratio;
-	bezierPoints[bezierPontokSzama - 2].y = hermitePoints[0].y - 1 * dy / 4; // ratio;
+	bezierPoints[bezierPontokSzama - 2].x = hermitePoints[0].x - dx / 4;
+	bezierPoints[bezierPontokSzama - 2].y = hermitePoints[0].y - dy / 4;
 }
 
 void kozosPontMozgatasa(GLdouble xMouse, GLdouble yMouse) {
@@ -407,7 +403,6 @@ void kozosPontMozgatasa(GLdouble xMouse, GLdouble yMouse) {
 	hermitePoints[selectedPointIndex].y = yMouse;
 	bezierPoints[bezierPontokSzama - 1].x = xMouse; //set the selected point new coordinates
 	bezierPoints[bezierPontokSzama - 1].y = yMouse;
-	//itt kellene valtoznia az erintonek is 
 	lastHermitePoint();
 }
 

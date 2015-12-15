@@ -60,7 +60,6 @@ void teglalepegyenese()
 	//y1-y2
 	//x2-x1
 	//x1*y2 - x2*y1
-	//noemalvektorok 
 	//x1,y1		x2, y2
 	//(800,0) (800,600)
 	//jobb egyenes
@@ -381,29 +380,17 @@ void keyPressed(GLFWwindow* windows, GLint key, GLint scanCode, GLint action, GL
 	if (action == GLFW_PRESS || action == GLFW_REPEAT ) {
 		switch (key) {
 		case GLFW_KEY_I: 
-			if (circles[0].vY < 0)
-				circles[0] = pattanasFaltol(circles[0], fentA, fentB);
-			else
-				circles[0] = pattanasFaltol(circles[0], lentA, lentB);
+			circles[0] = pattanasFaltol(circles[0], fentA, fentB);
 			break;
 		case GLFW_KEY_L: 
-			if (circles[0].vX > 0)
-				circles[0] = pattanasFaltol(circles[0], jobA, jobB);
-			else
-				circles[0] = pattanasFaltol(circles[0], balA, balB);
+			circles[0] = pattanasFaltol(circles[0], jobA, jobB);
 			break; 
 
 		case GLFW_KEY_W: 
-			if (circles[1].vY < 0)
-				circles[1] = pattanasFaltol(circles[1], fentA, fentB);
-			else 
-				circles[1] = pattanasFaltol(circles[1], lentA, lentB);
+			circles[1] = pattanasFaltol(circles[1], fentA, fentB);
 			break;
 		case GLFW_KEY_D: 
-			if (circles[1].vX > 0)
-				circles[1] = pattanasFaltol(circles[1], jobA, jobB);
-			else 
-				circles[1] = pattanasFaltol(circles[1], balA, balB);
+			circles[1] = pattanasFaltol(circles[1], jobA, jobB);
 			break;
 		}
 	}
