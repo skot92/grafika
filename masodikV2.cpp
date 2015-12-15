@@ -17,13 +17,11 @@ typedef GLdouble MATRIX4[4][4];
 
 typedef GLdouble MATRIX3[3][3];
 
-//kell-e forgatni
 bool forgasVan = false;
 
 //hany pont van lerakva az indulasnal
 GLint pontokszama = 0;
 
-//melyik pont korul forog
 GLint forogXPontKorul = -1;
 
 GLsizei winWidth = 800, winHeight = 600;

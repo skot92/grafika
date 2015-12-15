@@ -359,8 +359,6 @@ void display()
 		{
 			circles[i].x += circles[i].vX;
 			circles[i].y += circles[i].vY;
-			//if(circles[i].vX > 2 || circles[i].vY > 2)
-			//std::cout<< circles[i].vX << "	" << circles[i].vY<< std::endl;
 		}
 		kellePattanniAfalaktol();
 		kellEEgymastolPattanni();

@@ -320,7 +320,6 @@ void initTransformations()
 {
 
 	initPersProjMatrix(Vc, center);
-	// Wtv mátrixok
 	initWtvMatrix(Wtv, -4.0f, -4.0f, 8.0f, 8.0f, cX, cY, cW, cH);
 
 	MATRIX4 rX, rY, rZ, el,Tmp, tmp1, tmp2,s;
