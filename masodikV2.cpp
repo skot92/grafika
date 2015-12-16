@@ -28,6 +28,7 @@ GLsizei winWidth = 800, winHeight = 600;
 
 #define bezierPontokSzama 5
 #define hermitePontokSzama 3
+#define PI 3.141592653589793
 
 VECTOR2 bezierPoints[bezierPontokSzama];
 
@@ -232,7 +233,7 @@ VECTOR2 forgatas(VECTOR2 centralPoint, VECTOR2 otherPoint) {
 	tmp.y = -centralPoint.y;
 
 	initEltolasMatrix(elTolasOrigoba, tmp);
-	initForgatasMatrix(forgatas, 0.01);
+	initForgatasMatrix(forgatas, PI / 360);
 	initEltolasMatrix(visszatolas, centralPoint);
 
 	mulMatrices3x3(forgatas, elTolasOrigoba, elXforgatas);

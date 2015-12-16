@@ -394,9 +394,8 @@ GLdouble sulypont(FACE* face) {
 		sum += transformedTorus[face->v[i]].z;
 	}
 
-	return (transformedTorus[face->v[0]].z + transformedTorus[face->v[1]].z) / 2;
+	return (transformedTorus[face->v[0]].z + transformedTorus[face->v[2]].z) / 2;
 
-	//return sum / 4;
 }
 
 int comparePointsZ(const void *a, const void *b) {
